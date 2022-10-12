@@ -1,27 +1,32 @@
 #!/usr/bin/python3
-# displays extra AirBnB location info
-from flask import Flask, render_template
+"""Starts a Flask web application.
+
+The application listens on 0.0.0.0, port 5000.
+Routes:
+    /hbnb: HBnB home page.
+"""
 from models import storage
-from models.state import State
-from models. amenity import Amenity
+from flask import Flask
+from flask import render_template
+
 app = Flask(__name__)
-app.url_map.strict_slashes = False
-ip = '0.0.0.0'
-port = 5000
 
 
-@app.route('/hbnb')
+@app.route("/hbnb", strict_slashes=False)
 def hbnb():
-    # website that displays more content
-    states = list(storage.all(State).values())
-    amenities = list(storage.all(Amenity).values())
-    return render_template('100-hbnb.html', **locals())
+    """Displays the main HBnB filters HTML page."""
+    states = storage.all("State")
+    amenities = storage.all("Amenity")
+    places = storage.all("Place")
+    return render_template("100-hbnb.html",
+                           states=states, amenities=amenities, places=places)
 
 
 @app.teardown_appcontext
-def teardown(self):
-    # tears down app context
+def teardown(exc):
+    """Remove the current SQLAlchemy session."""
     storage.close()
 
-if __name__ == '__main__':
-    app.run(host=ip, port=port)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")

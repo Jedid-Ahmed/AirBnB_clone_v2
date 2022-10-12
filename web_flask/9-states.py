@@ -1,34 +1,32 @@
 #!/usr/bin/python3
-# displays states and cities
+"""starts a Flask web application"""
+
 from flask import Flask, render_template
-from models import storage
-from models.state import State
-app = Flask(__name__)
-app.url_map.strict_slashes = False
-ip = '0.0.0.0'
-port = 5000
+import models
 
-
-@app.route('/states')
-@app.route('/states/<id>')
-def cities_list(id=None):
-    # lists the cities based on state id
-    if id:
-        _id = id
-        main_state = None
-        for state in storage.all(State).values():
-            if state.id == _id:
-                main_state = state
-                break
-    else:
-        main_state = list(storage.all(State).values())
-    return (render_template('9-states.html', **locals()))
+app = Flask("__name__")
 
 
 @app.teardown_appcontext
-def teardown(self):
-    # tears down app context
-    storage.close()
+def refresh(exception):
+        models.storage.close()
+
+
+@app.route("/states", strict_slashes=False)
+def route_states():
+        pep_fix = models.dummy_classes["State"]
+        data = models.storage.all(cls=pep_fix)
+        states = data.values()
+        return render_template('7-states_list.html', states_list=states)
+
+
+@app.route("/states/<id>", strict_slashes=False)
+def route_city():
+        pep_fix = models.dummy_classes["State"]
+        data = models.storage.all(cls=pep_fix)
+        states = data.values()
+        return render_template('8-cities_by_states.html', states_list=states)
+
 
 if __name__ == "__main__":
-    app.run(host=ip, port=port)
+        app.run()
